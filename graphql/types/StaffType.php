@@ -2,19 +2,26 @@
 
 namespace app\graphql\types;
 
-use app\models\Actor;
+use app\models\Staff;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 
-class ActorType extends ObjectType
+class StaffType extends ObjectType
 {
     public function __construct(TypeRegistry $typeRegistry, array $config = [])
     {
         $config['fields'] = [
-			'actor_id' => Type::int(),
+			'staff_id' => Type::int(),
 			'first_name' => Type::string(),
 			'last_name' => Type::string(),
+			'address_id' => Type::int(),
+			'picture' => Type::string(),
+			'email' => Type::string(),
+			'store_id' => Type::int(),
+			'active' => Type::int(),
+			'username' => Type::string(),
+			'password' => Type::string(),
 			'last_update' => Type::string(),
 		];
 
@@ -23,7 +30,7 @@ class ActorType extends ObjectType
 
     public function queryType()
     {
-        $config = [
+        return [
             'type' => Type::listOf($this),
             'args' => [
                 'limit' => [
@@ -33,8 +40,6 @@ class ActorType extends ObjectType
             ],
             'resolve' => [$this, 'queryResolver']
         ];
-
-        return $config;
     }
 
     /**
@@ -46,7 +51,7 @@ class ActorType extends ObjectType
     */
     public function queryResolver($value, $args, $context, ResolveInfo $resolveInfo)
     {
-        $query = Actor::find();
+        $query = Staff::find();
 
         if (array_key_exists('limit', $args)) {
             $query->limit($args['limit']);

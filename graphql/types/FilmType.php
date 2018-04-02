@@ -4,6 +4,7 @@ namespace app\graphql\types;
 
 
 use app\graphql\DataSource;
+use app\models\Film;
 use GraphQL\Deferred;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -13,10 +14,8 @@ class FilmType extends ObjectType
 {
     protected $dataSource;
 
-    public function __construct(TypeRegistry $typeRegistry, DataSource $dataSource, array $config = [])
+    public function __construct(TypeRegistry $typeRegistry, array $config = [])
     {
-        $this->dataSource = $dataSource;
-
         $config = [
             'fields' => [
                 'film_id' => Type::int(),
@@ -24,7 +23,7 @@ class FilmType extends ObjectType
                 'description' => Type::string(),
                 'actors' => [
                     'type' => Type::listOf($typeRegistry->actor),
-                    'resolve' => function($film, $args, $context) use($dataSource) {
+                    'resolve' => function($film, $args, $context) {
                         // results in N+1 Problem
 
                         //$actorQuery = $dataSource->actorsForFilm($film['film_id']);
@@ -46,22 +45,40 @@ class FilmType extends ObjectType
         parent::__construct($config);
     }
 
+    public function queryType()
+    {
+        return [
+            'type' => Type::listOf($this),
+            'args' => [
+                'limit' => [
+                    'type' => Type::int(),
+                    'defaultValue' => 20
+                ],
+                'titleBeginsWith' => [
+                    'type' => Type::string()
+                ]
+            ],
+            'resolve' => [$this, 'queryResolver']
+        ];
+    }
+
     /**
      * @param $value
      * @param $args
      * @param $context
      * @param ResolveInfo $resolveInfo
      * @return array
-     * @throws \yii\db\Exception
      */
     public function queryResolver($value, $args, $context, ResolveInfo $resolveInfo)
     {
-        $filmQuery = $this->dataSource->film();
+        $filmQuery = Film::find();
 
         if (array_key_exists('titleBeginsWith', $args)) {
             $filmQuery->andWhere(['like','title', $args['titleBeginsWith'].'%', false]);
         }
+
         $filmQuery->limit($args['limit']);
-        return $this->dataSource->all($filmQuery);
+
+        return $filmQuery->all();
     }
 }

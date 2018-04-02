@@ -27,29 +27,14 @@ $rawInputMd5 = md5(Yii::$app->request->rawBody);
 $queryType = new ObjectType([
     'name' => 'Query',
     'fields' => [
-        'actors' => [
-            'type' => Type::listOf($typeRegistry->actor),
-            'resolve' => [$typeRegistry->actor, 'queryResolver'],
-            'args' => [
-                'limit' => [
-                    'type' => Type::int(),
-                    'defaultValue' => 20
-                ]
-            ]
-        ],
-        'films' => [
-            'type' => Type::listOf($typeRegistry->film),
-            'args' => [
-                'limit' => [
-                    'type' => Type::int(),
-                    'defaultValue' => 20
-                ],
-                'titleBeginsWith' => [
-                    'type' => Type::string()
-                ]
-            ],
-            'resolve' => [$typeRegistry->film, 'queryResolver']
-        ],
+        'actors' => $typeRegistry->actor->queryType(),
+
+        'films' => $typeRegistry->film->queryType(),
+
+        'customers' => $typeRegistry->customer->queryType(),
+
+        'staff' => $typeRegistry->staff->queryType(),
+
         'md5' => [
             'type' => Type::string(),
             'resolve' => function($value, $args, $context, ResolveInfo $resolveInfo)  {

@@ -3,6 +3,7 @@
 namespace app\graphql\types;
 use app\graphql\DataSource;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 
 
 /**
@@ -10,12 +11,16 @@ use GraphQL\Type\Definition\ObjectType;
  * @package app\graphql\types
  * @property ActorType $actor
  * @property FilmType $film
+ * @property CustomerType $customer
+ * @property StaffType $staff
  */
 class TypeRegistry
 {
     protected $types = [
         'actor' => ActorType::class,
-        'film' => FilmType::class
+        'film' => FilmType::class,
+        'customer' => CustomerType::class,
+        'staff' => StaffType::class,
     ];
 
     /**
@@ -44,7 +49,7 @@ class TypeRegistry
 
             $class = $this->types[$name];
 
-            return $this->types[$name] = new $class($this, $this->dataSource);
+            return $this->types[$name] = new $class($this);
 
         }
     }
